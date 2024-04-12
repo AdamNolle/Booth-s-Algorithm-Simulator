@@ -188,8 +188,6 @@ def conversion_prep(value1, value2):
     while done == False:
         # Checks if number of digits is a multiple of 4
         if len(value) % 4 != 0:
-            print(value)
-            print(len(value))
             # Pads value if number of digits is not a multiple of 4
             value = value[0] + value
         else:
