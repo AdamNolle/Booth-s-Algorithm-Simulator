@@ -46,7 +46,8 @@ def twoscomp(value):
 # Input: Three strings of 0's and 1's (binary).
 # Output: Three strings of 0's and 1's (binary).
 def shift_right(accumulator, multiplier, extended_bit):
-    length = len(accumulator)
+    acc_length = len(accumulator)
+    multiplier_len = len(multiplier)
     number = accumulator + multiplier + extended_bit
     # Duplicates first digit to start off arithmetic shift right
     new_number = number[0]
@@ -54,8 +55,8 @@ def shift_right(accumulator, multiplier, extended_bit):
     for i in range(len(number) - 1):
         new_number += number[i]
     extended_bit = new_number[-1]
-    accumulator = new_number[0:length]
-    multiplier = new_number[length:length*2]
+    accumulator = new_number[0:acc_length]
+    multiplier = new_number[acc_length:acc_length + multiplier_len]
     # print(new_number)
     return accumulator, multiplier, extended_bit
 
@@ -120,6 +121,16 @@ def booths(multiplicand, multiplier, length):
         print(accumulator, multiplier, extended_bit, "->", step)
     return shift_count, additions_count, subtractions_count, accumulator, multiplier
 
+# Definition: Adds a digit of signed bit to value that is passed in.
+# Input: String of 0's and 1's (binary).
+# Output: String of 0's and 1's (binary).
+def addDigit(value):
+    if value[0] == "0":
+        new_val = "0" + value
+    elif value[0] == "1":
+        new_val = "1" + value
+    return new_val
+
 # Definition: This Function performs the modified Booth's algorithm (group of 3 digits) to find the result of the multiplication of two binary numbers.
 # Input: Two strings of 0's and 1's (binary).
 # Output: One float, two integers, and two strings of 0's and 1's (binary).
@@ -128,6 +139,7 @@ def modified_booths(multiplicand, multiplier):
     accumulator = ""
     extended_bit = "0"
     multiplicand, multiplier = round(multiplicand, multiplier)
+    multiplicand = addDigit(multiplicand)
     length = len(multiplier)
     twos_comp_of_multiplicand = twoscomp(multiplicand)
     # computer would shift left, but we added multiplicand to itself to make code simpler
@@ -135,7 +147,7 @@ def modified_booths(multiplicand, multiplier):
     twos_comp_two_x_multiplicand = twoscomp(two_x_multiplicand)
     additions_count = 0
     subtractions_count = 0
-    for i in range(len(multiplier)):
+    for i in range(len(multiplicand)):
         accumulator += "0"
     last_digits = multiplier[-2:] + extended_bit
     # Performs the algorithms until number of shifts equals half number of digits of multiplier (since you always shift right twice for Modified Booth's)
@@ -159,21 +171,21 @@ def modified_booths(multiplicand, multiplier):
             accumulator, multiplier, extended_bit = shift_right(accumulator, multiplier, extended_bit)
             accumulator, multiplier, extended_bit = shift_right(accumulator, multiplier, extended_bit)
             shift_count += 2
-            step = "Last two digits are " + last_digits + " so subtract multiplicand and shift right twice."
+            step = "Last three digits are " + last_digits + " so subtract multiplicand and shift right twice."
         elif last_digits == "011":
             accumulator = add(accumulator, two_x_multiplicand)
             additions_count += 1
             accumulator, multiplier, extended_bit = shift_right(accumulator, multiplier, extended_bit)
             accumulator, multiplier, extended_bit = shift_right(accumulator, multiplier, extended_bit)
             shift_count += 2
-            step = "Last two digits are " + last_digits + " so add 2*multiplicand and shift right twice."
+            step = "Last three digits are " + last_digits + " so add 2*multiplicand and shift right twice."
         elif last_digits == "100":
             accumulator = add(accumulator, twos_comp_two_x_multiplicand)
             subtractions_count += 1
             accumulator, multiplier, extended_bit = shift_right(accumulator, multiplier, extended_bit)
             accumulator, multiplier, extended_bit = shift_right(accumulator, multiplier, extended_bit)
             shift_count += 2
-            step = "Last two digits are " + last_digits + " so subtract 2*multiplicand and shift right twice."
+            step = "Last three digits are " + last_digits + " so subtract 2*multiplicand and shift right twice."
         last_digits = multiplier[-2:] + extended_bit
         print(accumulator, multiplier, extended_bit, "->", step)
 
@@ -215,8 +227,8 @@ def main():
     print("Number of additions for Booth's Algorithm: ", booths_additions)
     print("Number of subtractions for Booth's Algorithm: ", booths_subtractions)
     print("-----------------------------")
-    print("Modified Booth's: ", mbooth1, mbooth2)
-    mbooth_hex = conversion_prep(mbooth1, mbooth2)
+    print("Modified Booth's: ", mbooth1[1:], mbooth2)
+    mbooth_hex = conversion_prep(mbooth1[1:], mbooth2)
     print("Modified Booth's value in hex: ", format(int(mbooth_hex, 2), 'x'))
     print("Number of iterations for Modified Booth's Algorithm: ", int(mbooth_count))
     print("Number of additions for Modified Booth's Algorithm: ", mbooths_additions)
